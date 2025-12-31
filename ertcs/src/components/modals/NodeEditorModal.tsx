@@ -1,12 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Modal } from './Modal';
 import { useTimeline } from '../../context/TimelineContext';
-import type { NodeId, DurationType } from '../../types';
+import type { NodeId, DurationType, TimelineNode } from '../../types';
 
 interface NodeEditorModalProps {
   nodeId: NodeId | null;
   isOpen: boolean;
   onClose: () => void;
+}
+
+interface NodeFormProps {
+  node: TimelineNode;
+  onSave: (data: {
+    name: string;
+    description: string;
+    durationType: DurationType;
+    category?: string;
+    enabled: boolean;
+  }) => void;
+  onDelete: () => void;
+  onCancel: () => void;
 }
 
 const CATEGORIES = [
@@ -19,70 +32,37 @@ const CATEGORIES = [
   { value: 'ending', label: 'Ending' },
 ];
 
-export function NodeEditorModal({ nodeId, isOpen, onClose }: NodeEditorModalProps) {
-  const { state, updateNode, deleteNode } = useTimeline();
-  const node = nodeId ? state.nodes[nodeId] : null;
-
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [durationType, setDurationType] = useState<DurationType>('instant');
-  const [category, setCategory] = useState('');
-  const [enabled, setEnabled] = useState(true);
+// Separate form component that mounts fresh when modal opens
+function NodeForm({ node, onSave, onDelete, onCancel }: NodeFormProps) {
+  // Initialize state from props - runs once on mount
+  const [name, setName] = useState(node.name);
+  const [description, setDescription] = useState(node.description);
+  const [durationType, setDurationType] = useState<DurationType>(node.durationType);
+  const [category, setCategory] = useState(node.category || '');
+  const [enabled, setEnabled] = useState(node.enabled);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Populate form when node changes
-  useEffect(() => {
-    if (node) {
-      setName(node.name);
-      setDescription(node.description);
-      setDurationType(node.durationType);
-      setCategory(node.category || '');
-      setEnabled(node.enabled);
-      setShowDeleteConfirm(false);
-    }
-  }, [node]);
-
-  // Reset form when modal closes
-  useEffect(() => {
-    if (!isOpen) {
-      setShowDeleteConfirm(false);
-    }
-  }, [isOpen]);
-
   const handleSave = () => {
-    if (!nodeId || !name.trim()) return;
-
-    updateNode(nodeId, {
+    if (!name.trim()) return;
+    onSave({
       name: name.trim(),
       description: description.trim(),
       durationType,
       category: category || undefined,
       enabled,
     });
-    onClose();
   };
 
   const handleDelete = () => {
-    if (!nodeId) return;
-
     if (!showDeleteConfirm) {
       setShowDeleteConfirm(true);
       return;
     }
-
-    deleteNode(nodeId);
-    onClose();
+    onDelete();
   };
-
-  const handleCancel = () => {
-    setShowDeleteConfirm(false);
-    onClose();
-  };
-
-  if (!node) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={handleCancel} title="Edit Event">
+    <>
       <div className="form-group">
         <label className="form-label" htmlFor="node-name">Name</label>
         <input
@@ -175,7 +155,7 @@ export function NodeEditorModal({ nodeId, isOpen, onClose }: NodeEditorModalProp
       </div>
 
       <div className="modal-actions">
-        <button className="modal-btn modal-btn-secondary" onClick={handleCancel}>
+        <button className="modal-btn modal-btn-secondary" onClick={onCancel}>
           Cancel
         </button>
         <button
@@ -186,6 +166,43 @@ export function NodeEditorModal({ nodeId, isOpen, onClose }: NodeEditorModalProp
           Save Changes
         </button>
       </div>
+    </>
+  );
+}
+
+export function NodeEditorModal({ nodeId, isOpen, onClose }: NodeEditorModalProps) {
+  const { state, updateNode, deleteNode } = useTimeline();
+  const node = nodeId ? state.nodes[nodeId] : null;
+
+  const handleSave = (data: {
+    name: string;
+    description: string;
+    durationType: DurationType;
+    category?: string;
+    enabled: boolean;
+  }) => {
+    if (!nodeId) return;
+    updateNode(nodeId, data);
+    onClose();
+  };
+
+  const handleDelete = () => {
+    if (!nodeId) return;
+    deleteNode(nodeId);
+    onClose();
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title="Edit Event">
+      {/* Form component mounts fresh each time modal opens */}
+      {isOpen && node && (
+        <NodeForm
+          node={node}
+          onSave={handleSave}
+          onDelete={handleDelete}
+          onCancel={onClose}
+        />
+      )}
     </Modal>
   );
 }

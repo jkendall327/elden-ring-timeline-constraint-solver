@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Modal } from './Modal';
 import { useTimeline } from '../../context/TimelineContext';
 import {
@@ -12,6 +12,8 @@ import {
   type NodeId,
   type AllenRelation,
   type ConfidenceLevel,
+  type TemporalRelationship,
+  type TimelineNode,
 } from '../../types';
 
 interface RelationshipModalProps {
@@ -22,118 +24,90 @@ interface RelationshipModalProps {
   defaultTargetId?: NodeId;
 }
 
-export function RelationshipModal({
-  relationshipId,
-  isOpen,
-  onClose,
+interface RelationshipFormProps {
+  relationship: TemporalRelationship | null;
+  nodes: Record<NodeId, TimelineNode>;
+  nodeOrder: NodeId[];
+  defaultSourceId?: NodeId;
+  defaultTargetId?: NodeId;
+  onSave: (data: {
+    sourceId: NodeId;
+    targetId: NodeId;
+    relation: AllenRelation;
+    confidence: ConfidenceLevel;
+    reasoning?: string;
+    enabled: boolean;
+  }) => void;
+  onDelete?: () => void;
+  onCancel: () => void;
+}
+
+// Separate form component that mounts fresh when modal opens
+function RelationshipForm({
+  relationship,
+  nodes,
+  nodeOrder,
   defaultSourceId,
   defaultTargetId,
-}: RelationshipModalProps) {
-  const {
-    state,
-    addRelationship,
-    updateRelationship,
-    deleteRelationship,
-  } = useTimeline();
+  onSave,
+  onDelete,
+  onCancel,
+}: RelationshipFormProps) {
+  const isEditing = relationship !== null;
 
-  const isEditing = relationshipId !== null;
-  const relationship = relationshipId ? state.relationships[relationshipId] : null;
-
-  const [sourceId, setSourceId] = useState<NodeId | ''>('');
-  const [targetId, setTargetId] = useState<NodeId | ''>('');
-  const [relation, setRelation] = useState<AllenRelation>('before');
-  const [confidence, setConfidence] = useState<ConfidenceLevel>('explicit');
-  const [reasoning, setReasoning] = useState('');
-  const [enabled, setEnabled] = useState(true);
+  // Initialize state from props - runs once on mount
+  const [sourceId, setSourceId] = useState<NodeId | ''>(
+    relationship?.sourceId ?? defaultSourceId ?? ''
+  );
+  const [targetId, setTargetId] = useState<NodeId | ''>(
+    relationship?.targetId ?? defaultTargetId ?? ''
+  );
+  const [relation, setRelation] = useState<AllenRelation>(
+    relationship?.relation ?? 'before'
+  );
+  const [confidence, setConfidence] = useState<ConfidenceLevel>(
+    relationship?.confidence ?? 'explicit'
+  );
+  const [reasoning, setReasoning] = useState(relationship?.reasoning ?? '');
+  const [enabled, setEnabled] = useState(relationship?.enabled ?? true);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Get sorted nodes for dropdowns
   const sortedNodes = useMemo(() => {
-    return state.nodeOrder
-      .map((id) => state.nodes[id])
+    return nodeOrder
+      .map((id) => nodes[id])
       .filter(Boolean)
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [state.nodes, state.nodeOrder]);
+  }, [nodes, nodeOrder]);
 
-  // Populate form when relationship changes or modal opens
-  useEffect(() => {
-    if (isOpen) {
-      if (relationship) {
-        // Editing existing
-        setSourceId(relationship.sourceId);
-        setTargetId(relationship.targetId);
-        setRelation(relationship.relation);
-        setConfidence(relationship.confidence);
-        setReasoning(relationship.reasoning || '');
-        setEnabled(relationship.enabled);
-      } else {
-        // Creating new
-        setSourceId(defaultSourceId || '');
-        setTargetId(defaultTargetId || '');
-        setRelation('before');
-        setConfidence('explicit');
-        setReasoning('');
-        setEnabled(true);
-      }
-      setShowDeleteConfirm(false);
-    }
-  }, [isOpen, relationship, defaultSourceId, defaultTargetId]);
-
-  const sourceName = sourceId ? state.nodes[sourceId]?.name : 'Select source';
-  const targetName = targetId ? state.nodes[targetId]?.name : 'Select target';
+  const sourceName = sourceId ? nodes[sourceId]?.name : 'Select source';
+  const targetName = targetId ? nodes[targetId]?.name : 'Select target';
   const relationLabel = ALLEN_RELATION_LABELS[relation];
 
   const canSave = sourceId && targetId && sourceId !== targetId;
 
   const handleSave = () => {
     if (!canSave) return;
-
-    if (isEditing && relationshipId) {
-      updateRelationship(relationshipId, {
-        sourceId,
-        targetId,
-        relation,
-        confidence,
-        reasoning: reasoning.trim() || undefined,
-        enabled,
-      });
-    } else {
-      addRelationship({
-        sourceId,
-        targetId,
-        relation,
-        confidence,
-        reasoning: reasoning.trim() || undefined,
-        enabled,
-      });
-    }
-    onClose();
+    onSave({
+      sourceId,
+      targetId,
+      relation,
+      confidence,
+      reasoning: reasoning.trim() || undefined,
+      enabled,
+    });
   };
 
   const handleDelete = () => {
-    if (!relationshipId) return;
-
+    if (!onDelete) return;
     if (!showDeleteConfirm) {
       setShowDeleteConfirm(true);
       return;
     }
-
-    deleteRelationship(relationshipId);
-    onClose();
-  };
-
-  const handleCancel = () => {
-    setShowDeleteConfirm(false);
-    onClose();
+    onDelete();
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={handleCancel}
-      title={isEditing ? 'Edit Relationship' : 'Create Relationship'}
-      width={520}
-    >
+    <>
       {/* Preview */}
       <div className="relationship-preview">
         <div className="relationship-preview-nodes">
@@ -254,7 +228,7 @@ export function RelationshipModal({
       )}
 
       {/* Delete section (only for editing) */}
-      {isEditing && (
+      {isEditing && onDelete && (
         <div className="danger-zone">
           <h4 className="danger-zone-title">Danger Zone</h4>
           <p className="danger-zone-text">
@@ -270,7 +244,7 @@ export function RelationshipModal({
       )}
 
       <div className="modal-actions">
-        <button className="modal-btn modal-btn-secondary" onClick={handleCancel}>
+        <button className="modal-btn modal-btn-secondary" onClick={onCancel}>
           Cancel
         </button>
         <button
@@ -281,6 +255,70 @@ export function RelationshipModal({
           {isEditing ? 'Save Changes' : 'Create Relationship'}
         </button>
       </div>
+    </>
+  );
+}
+
+export function RelationshipModal({
+  relationshipId,
+  isOpen,
+  onClose,
+  defaultSourceId,
+  defaultTargetId,
+}: RelationshipModalProps) {
+  const {
+    state,
+    addRelationship,
+    updateRelationship,
+    deleteRelationship,
+  } = useTimeline();
+
+  const isEditing = relationshipId !== null;
+  const relationship = relationshipId ? state.relationships[relationshipId] : null;
+
+  const handleSave = (data: {
+    sourceId: NodeId;
+    targetId: NodeId;
+    relation: AllenRelation;
+    confidence: ConfidenceLevel;
+    reasoning?: string;
+    enabled: boolean;
+  }) => {
+    if (isEditing && relationshipId) {
+      updateRelationship(relationshipId, data);
+    } else {
+      addRelationship(data);
+    }
+    onClose();
+  };
+
+  const handleDelete = () => {
+    if (relationshipId) {
+      deleteRelationship(relationshipId);
+      onClose();
+    }
+  };
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={isEditing ? 'Edit Relationship' : 'Create Relationship'}
+      width={520}
+    >
+      {/* Form component mounts fresh each time modal opens */}
+      {isOpen && (
+        <RelationshipForm
+          relationship={relationship}
+          nodes={state.nodes}
+          nodeOrder={state.nodeOrder}
+          defaultSourceId={defaultSourceId}
+          defaultTargetId={defaultTargetId}
+          onSave={handleSave}
+          onDelete={isEditing ? handleDelete : undefined}
+          onCancel={onClose}
+        />
+      )}
     </Modal>
   );
 }
