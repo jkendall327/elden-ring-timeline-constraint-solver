@@ -411,6 +411,7 @@ User notes:
 ## Phase 7 - final stuff
 - Add tests!
 - Find places where we can remove useMemo etc. because we are using the React Compiler.
+- Button to reset to the default timeline.
 
 ## Other assorted changes
 - Should show modal for editing a node when adding a new one.
