@@ -211,44 +211,207 @@ interface HistoryState<T> {
 
 ---
 
-## Implementation Phases
+## Implementation Checklist
 
-### Phase 1: Foundation
-- Project structure and TypeScript interfaces
-- TimelineContext with reducer + undo/redo
-- LocalStorage persistence
-- Basic static timeline view (no solver)
+### Phase 1: Foundation - COMPLETE
 
-### Phase 2: Constraint Solver
-- Allen relation → constraint conversion
-- STN graph implementation
-- Bellman-Ford algorithm
-- Conflict detection
-- Web Worker setup
+- [x] Project structure (folders created)
+- [x] `src/types/index.ts` - All TypeScript interfaces
+  - NodeId, RelationshipId, AllenRelation, ConfidenceLevel
+  - TimelineNode, TemporalRelationship, SolverResult
+  - TimelineState, TimelineAction, HistoryState
+  - ALLEN_RELATIONS array, CONFIDENCE_WEIGHTS map
+- [x] `src/context/TimelineContext.tsx` - State management
+  - Reducer with all CRUD actions
+  - History wrapper for undo/redo (50 states max)
+  - LocalStorage auto-save (1s debounce)
+  - Solver integration via useSolver hook
+- [x] `src/components/layout/AppLayout.tsx` - Main layout
+  - Header with title
+  - Toolbar: "+ Event", "+ Era", Undo, Redo buttons
+  - Help button (not yet functional)
+- [x] `src/components/timeline/TimelineCanvas.tsx` - Pan/zoom container
+  - Mouse drag to pan
+  - Scroll wheel to zoom
+  - Zoom indicator in corner
+- [x] `src/components/timeline/TimelineTrack.tsx` - Main timeline
+  - Renders nodes from solver positions
+  - Falls back to evenly-spaced if no solver result
+  - Click background to deselect
+- [x] `src/components/timeline/TimelineNode.tsx` - Instant events
+  - Circular marker with category color
+  - Hover/selected states
+  - Label on hover
+- [x] `src/components/timeline/TimelineInterval.tsx` - Duration events
+  - Horizontal bar with caps
+  - Category color with transparency
+  - Label centered
+- [x] `src/App.tsx` - Wires everything together
+- [x] CSS files for all components (dark theme)
 
-### Phase 3: Soft Constraints
-- Weighted constraint model
-- Iterative relaxation algorithm
-- Violation tracking and reporting
+### Phase 2: Constraint Solver - COMPLETE
 
-### Phase 4: Timeline Visualization
-- Pan/zoom implementation
-- TimelineNode and TimelineInterval components
-- Selection interactions
-- Relationship line rendering
+- [x] `src/solver/constraints.ts` - Allen to numeric conversion
+  - `allenToConstraints()` - all 13 relations implemented
+  - `getNodeVariables()` - generates start/end variable names
+  - `getNodeInternalConstraints()` - ensures start < end for intervals
+- [x] `src/solver/stn.ts` - Simple Temporal Network
+  - `SimpleTemporalNetwork` class with add/remove operations
+  - `addVirtualSource()` for single-source shortest path
+  - Edge tracking by relationship ID
+- [x] `src/solver/propagation.ts` - Bellman-Ford algorithm
+  - `bellmanFord()` - shortest paths + negative cycle detection
+  - `extractNegativeCycle()` - identifies conflicting constraints
+  - `checkNetworkConsistency()` - main consistency check
+  - `findAllConflicts()` - finds multiple conflict sets
+- [x] `src/solver/relaxation.ts` - Soft constraint handling
+  - `buildNetwork()` - creates STN from nodes + relationships
+  - `relaxConstraints()` - iterative relaxation by weight
+  - Removes lowest-weight constraints until satisfiable
+- [x] `src/solver/positioning.ts` - Position assignment
+  - `assignPositions()` - converts distances to timeline positions
+  - `assignDefaultPositions()` - fallback for no constraints
+  - Normalization and padding
+- [x] `src/solver/solver.ts` - Main entry point
+  - `solve()` - orchestrates full pipeline
+  - `validateConstraints()` - check without relaxation
+  - `wouldCauseConflict()` - preview adding a constraint
+- [x] `src/solver/solver.worker.ts` - Web Worker
+  - Non-blocking solve execution
+  - Message passing protocol
+- [x] `src/hooks/useSolver.ts` - React integration
+  - Auto-solve on data changes (300ms debounce)
+  - Manages worker lifecycle
+  - Provides result, isSolving, error states
 
-### Phase 5: Editor UI
-- Modal system
-- NodeEditorModal
-- RelationshipModal
-- Keyboard shortcuts (Ctrl+Z, etc.)
+### Phase 3: Editor UI - NOT STARTED
 
-### Phase 6: Polish
-- Pre-loaded Elden Ring dataset
-- HelpModal with documentation
-- ConflictPanel in sidebar
-- Visual styling
-- Performance testing
+- [ ] `src/components/modals/Modal.tsx` - Base modal component
+  - Overlay with click-outside to close
+  - Escape key to close
+  - Focus trap for accessibility
+- [ ] `src/components/modals/NodeEditorModal.tsx`
+  - Open when clicking a node (currently just selects)
+  - Fields: name (text), description (textarea), durationType (radio), category (select)
+  - Enable/disable toggle
+  - Delete button with confirmation
+  - Save/Cancel buttons
+- [ ] `src/components/modals/RelationshipModal.tsx`
+  - Create new relationship between two nodes
+  - Source node selector (dropdown of all nodes)
+  - Target node selector (dropdown of all nodes)
+  - Relation type selector (all 13 Allen relations with descriptions)
+  - Confidence level selector (explicit/inferred/speculation)
+  - Reasoning field (textarea for evidence)
+  - Preview: show if this would cause conflicts before saving
+  - Enable/disable toggle for editing existing
+  - Delete button
+- [ ] UI to trigger relationship creation
+  - Option A: "Add Relationship" button in toolbar
+  - Option B: Right-click context menu on nodes
+  - Option C: Drag from one node to another
+- [ ] `src/hooks/useKeyboardShortcuts.ts`
+  - Ctrl+Z / Cmd+Z for undo
+  - Ctrl+Shift+Z / Cmd+Shift+Z for redo
+  - Escape to close modals
+  - Delete to delete selected node
+
+### Phase 4: Relationship Visualization - NOT STARTED
+
+- [ ] `src/components/timeline/RelationshipLine.tsx`
+  - SVG arrows/lines connecting related nodes
+  - Only shown when a node is selected
+  - Color by confidence: green (explicit), yellow (inferred), orange (speculation)
+  - Different line styles for different relation types (optional)
+  - Animate in/out on selection change
+- [ ] Update `TimelineTrack.tsx` to render RelationshipLines
+  - Get relationships involving selected node
+  - Calculate line positions from node positions
+  - Render as SVG overlay
+- [ ] Conflict highlighting
+  - Red border/glow on nodes involved in conflicts
+  - Red relationship lines for violated constraints
+  - Tooltip showing conflict details
+
+### Phase 5: Panels & Information - NOT STARTED
+
+- [ ] `src/components/panels/NodeList.tsx` - Sidebar listing
+  - List all nodes (grouped by category?)
+  - Show enabled/disabled state
+  - Click to select and pan to node
+  - Quick enable/disable toggle
+  - Search/filter functionality
+- [ ] `src/components/panels/RelationshipList.tsx` - Sidebar listing
+  - List all relationships
+  - Show source → relation → target
+  - Color by confidence
+  - Click to highlight both nodes
+  - Quick enable/disable toggle
+- [ ] `src/components/panels/ConflictPanel.tsx`
+  - Show current solver status (satisfiable/relaxed/unsatisfiable)
+  - List violated constraints with explanations
+  - List unresolvable conflicts
+  - Click to highlight involved nodes
+  - Suggestions: "Try disabling X or Y"
+- [ ] `src/components/modals/HelpModal.tsx`
+  - Project explanation and purpose
+  - Allen relation reference with visual diagrams
+  - How to use the app (tutorial)
+  - Credits
+- [ ] Sidebar layout integration
+  - Collapsible sidebar
+  - Tabs or accordion for different panels
+
+### Phase 6: Data & Polish - NOT STARTED
+
+- [ ] `src/data/defaultTimeline.ts` - Pre-loaded Elden Ring events
+  - Major eras: Age of Dragons, Age of Erdtree, The Shattering, etc.
+  - Key events: Greater Will arrives, Godfrey's wars, Marika's actions
+  - Initial relationships between them
+  - Load on first visit (if localStorage empty)
+- [ ] `src/data/categories.ts` - Event categories
+  - primordial, golden-order, shattering, demigod, tarnished, ending
+  - Colors for each
+  - Icons (optional)
+- [ ] Visual polish
+  - Loading state while solver runs
+  - Smooth animations for node position changes
+  - Better zoom controls (buttons, reset)
+  - Minimap for large timelines (stretch)
+- [ ] Performance testing
+  - Test with 100+ nodes
+  - Test with 500+ relationships
+  - Profile and optimize if needed
+- [ ] Error handling
+  - Graceful handling of localStorage errors
+  - Worker crash recovery
+  - Invalid data migration
+
+---
+
+## Current State Summary
+
+**What works now:**
+- App runs (`npm run dev`)
+- Can add instant events and eras via toolbar buttons
+- Timeline displays nodes with pan/zoom
+- Undo/redo works
+- Solver runs automatically and positions nodes
+- Data persists to localStorage
+
+**What's missing for MVP:**
+1. Cannot edit nodes after creation (need NodeEditorModal)
+2. Cannot create relationships between nodes (need RelationshipModal)
+3. Cannot see relationships visually (need RelationshipLine)
+4. No way to see conflicts (need ConflictPanel)
+5. No pre-loaded data (need defaultTimeline.ts)
+
+**Recommended next steps:**
+1. Build the modal system and NodeEditorModal
+2. Build RelationshipModal to create constraints
+3. Add RelationshipLine visualization
+4. Add ConflictPanel to show solver status
+5. Create default Elden Ring dataset
 
 ---
 
