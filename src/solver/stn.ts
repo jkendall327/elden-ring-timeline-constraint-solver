@@ -108,7 +108,7 @@ export class SimpleTemporalNetwork {
    * Get outgoing edges from a vertex
    */
   getOutgoingEdges(vertex: string): STNEdge[] {
-    return this.adjacencyList.get(vertex) || [];
+    return this.adjacencyList.get(vertex) ?? [];
   }
 
   /**

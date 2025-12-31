@@ -85,7 +85,7 @@ function createCurvedPath(
   const midY = source.y - 40 - curveOffset; // Curve above the timeline
 
   // Use quadratic bezier for smooth curves
-  return `M ${source.x} ${source.y} Q ${midX} ${midY} ${target.x} ${target.y}`;
+  return `M ${String(source.x)} ${String(source.y)} Q ${String(midX)} ${String(midY)} ${String(target.x)} ${String(target.y)}`;
 }
 
 export function RelationshipLine({
@@ -148,7 +148,7 @@ export function RelationshipLine({
       <polygon
         points="0,-5 10,0 0,5"
         fill={color}
-        transform={`translate(${target.x}, ${target.y}) rotate(${angle})`}
+        transform={`translate(${String(target.x)}, ${String(target.y)}) rotate(${String(angle)})`}
         className="relationship-line-arrow"
       />
 

@@ -41,7 +41,7 @@ function NodeForm({ node, onSave, onDelete, onCancel, isCreateMode }: NodeFormPr
   const [name, setName] = useState(node.name);
   const [description, setDescription] = useState(node.description);
   const [durationType, setDurationType] = useState<DurationType>(node.durationType);
-  const [category, setCategory] = useState(node.category || '');
+  const [category, setCategory] = useState(node.category ?? '');
   const [enabled, setEnabled] = useState(node.enabled);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -192,7 +192,7 @@ export function NodeEditorModal({ nodeId, isOpen, onClose, initialDurationType =
     updatedAt: 0,
   };
 
-  const node = existingNode || defaultNode;
+  const node = existingNode ?? defaultNode;
 
   const handleSave = (data: {
     name: string;

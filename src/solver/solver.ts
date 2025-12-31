@@ -179,5 +179,5 @@ export function wouldCauseConflict(
   }
 
   // Return first conflict if new relationship not directly involved
-  return conflicts[0] || null;
+  return conflicts[0] ?? null;
 }

@@ -11,7 +11,7 @@ interface TimelineIntervalProps {
 }
 
 export function TimelineInterval({ node, position, isSelected, hasConflict, onClick }: TimelineIntervalProps) {
-  const categoryColor = node.color || getCategoryColor(node.category);
+  const categoryColor = node.color ?? getCategoryColor(node.category);
   const width = Math.max(position.end - position.start, 20);
 
   const classNames = [
@@ -53,5 +53,5 @@ function getCategoryColor(category?: string): string {
     tarnished: '#10b981',
     ending: '#f97316',
   };
-  return colors[category || ''] || '#6b7280';
+  return colors[category ?? ''] ?? '#6b7280';
 }

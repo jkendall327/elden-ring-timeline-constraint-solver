@@ -83,7 +83,7 @@ export function assignPositions(
   for (const node of nodes) {
     const vals = nodeValues.get(node.id);
 
-    if (!vals || vals.start === null) {
+    if (vals?.start == null) {
       // Node has no valid position - skip it
       continue;
     }

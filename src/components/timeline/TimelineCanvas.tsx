@@ -83,7 +83,7 @@ export function TimelineCanvas({ children }: TimelineCanvasProps) {
       <div
         className="timeline-content"
         style={{
-          transform: `translateX(${viewport.panX}px) scale(${viewport.zoom})`,
+          transform: `translateX(${String(viewport.panX)}px) scale(${String(viewport.zoom)})`,
           transformOrigin: 'left center',
         }}
       >

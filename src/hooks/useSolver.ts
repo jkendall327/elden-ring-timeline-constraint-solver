@@ -87,7 +87,7 @@ export function useSolver(
       // Attempt to recover from crash
       if (retryCountRef.current < MAX_WORKER_RETRIES && pendingDataRef.current) {
         retryCountRef.current++;
-        console.log(`Worker crashed, attempting recovery (attempt ${retryCountRef.current}/${MAX_WORKER_RETRIES})...`);
+        console.log(`Worker crashed, attempting recovery (attempt ${String(retryCountRef.current)}/${String(MAX_WORKER_RETRIES)})...`);
 
         // Terminate the crashed worker
         worker.terminate();
@@ -178,7 +178,7 @@ export function useSyncSolver(
 
   useEffect(() => {
     // Dynamically import to avoid bundling in main chunk
-    import('../solver/solver').then(({ solve }) => {
+    void import('../solver/solver').then(({ solve }) => {
       const enabledNodes = Object.values(nodes).filter((n) => n.enabled);
       const enabledRelationships = Object.values(relationships).filter(
         (r) => r.enabled

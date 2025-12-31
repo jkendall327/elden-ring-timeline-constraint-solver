@@ -11,7 +11,7 @@ interface TimelineNodeProps {
 }
 
 export function TimelineNode({ node, position, isSelected, hasConflict, onClick }: TimelineNodeProps) {
-  const categoryColor = node.color || getCategoryColor(node.category);
+  const categoryColor = node.color ?? getCategoryColor(node.category);
 
   const classNames = [
     'timeline-node',
@@ -47,5 +47,5 @@ function getCategoryColor(category?: string): string {
     tarnished: '#10b981',
     ending: '#f97316',
   };
-  return colors[category || ''] || '#6b7280';
+  return colors[category ?? ''] ?? '#6b7280';
 }

@@ -19,7 +19,7 @@ export function Sidebar({ onPanToNode, onEditRelationship }: SidebarProps) {
 
   const nodeCount = state.nodeOrder.length;
   const relationshipCount = state.relationshipOrder.length;
-  const conflictCount = (solverResult?.violations?.length ?? 0) + (solverResult?.conflicts?.length ?? 0);
+  const conflictCount = (solverResult?.violations.length ?? 0) + (solverResult?.conflicts.length ?? 0);
 
   return (
     <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>

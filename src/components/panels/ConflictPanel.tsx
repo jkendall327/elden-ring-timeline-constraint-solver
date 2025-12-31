@@ -96,9 +96,9 @@ export function ConflictPanel() {
               <div
                 key={v.relationshipId}
                 className="conflict-item"
-                onClick={() =>
-                  v.relationship && handleViolationClick(v.relationship.sourceId)
-                }
+                onClick={() => {
+                  if (v.relationship) handleViolationClick(v.relationship.sourceId);
+                }}
               >
                 <div className="conflict-item-header">
                   <span className="conflict-item-relation">

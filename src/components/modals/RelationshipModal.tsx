@@ -56,10 +56,10 @@ function RelationshipForm({
   const isEditing = relationship !== null;
 
   // Initialize state from props - runs once on mount
-  const [sourceId, setSourceId] = useState<NodeId | ''>(
+  const [sourceId, setSourceId] = useState<NodeId>(
     relationship?.sourceId ?? defaultSourceId ?? ''
   );
-  const [targetId, setTargetId] = useState<NodeId | ''>(
+  const [targetId, setTargetId] = useState<NodeId>(
     relationship?.targetId ?? defaultTargetId ?? ''
   );
   const [relation, setRelation] = useState<AllenRelation>(
