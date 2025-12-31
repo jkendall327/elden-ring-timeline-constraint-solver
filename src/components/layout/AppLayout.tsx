@@ -5,33 +5,17 @@ import './AppLayout.css';
 
 interface AppLayoutProps {
   children: ReactNode;
+  onAddEvent: () => void;
+  onAddEra: () => void;
   onAddRelationship: () => void;
   onOpenHelp: () => void;
   onPanToNode?: (nodeId: string, position: number) => void;
   onEditRelationship?: (relationshipId: string) => void;
 }
 
-export function AppLayout({ children, onAddRelationship, onOpenHelp, onPanToNode, onEditRelationship }: AppLayoutProps) {
-  const { canUndo, canRedo, undo, redo, addNode, state } = useTimeline();
+export function AppLayout({ children, onAddEvent, onAddEra, onAddRelationship, onOpenHelp, onPanToNode, onEditRelationship }: AppLayoutProps) {
+  const { canUndo, canRedo, undo, redo, state } = useTimeline();
   const hasEnoughNodes = state.nodeOrder.length >= 2;
-
-  const handleAddEvent = () => {
-    addNode({
-      name: 'New Event',
-      description: '',
-      durationType: 'instant',
-      enabled: true,
-    });
-  };
-
-  const handleAddEra = () => {
-    addNode({
-      name: 'New Era',
-      description: '',
-      durationType: 'interval',
-      enabled: true,
-    });
-  };
 
   return (
     <div className="app-layout">
@@ -44,14 +28,14 @@ export function AppLayout({ children, onAddRelationship, onOpenHelp, onPanToNode
           <div className="toolbar">
             <button
               className="toolbar-btn"
-              onClick={handleAddEvent}
+              onClick={onAddEvent}
               title="Add instant event"
             >
               + Event
             </button>
             <button
               className="toolbar-btn"
-              onClick={handleAddEra}
+              onClick={onAddEra}
               title="Add era/duration"
             >
               + Era

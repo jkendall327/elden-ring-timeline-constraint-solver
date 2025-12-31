@@ -7,13 +7,14 @@ import { NodeEditorModal } from './components/modals/NodeEditorModal';
 import { RelationshipModal } from './components/modals/RelationshipModal';
 import { HelpModal } from './components/modals/HelpModal';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
-import type { NodeId, RelationshipId, ModalType } from './types';
+import type { NodeId, RelationshipId, ModalType, DurationType } from './types';
 import './App.css';
 
 function AppContent() {
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [editingNodeId, setEditingNodeId] = useState<NodeId | null>(null);
   const [editingRelationshipId, setEditingRelationshipId] = useState<RelationshipId | null>(null);
+  const [newNodeDurationType, setNewNodeDurationType] = useState<DurationType>('instant');
   const { setViewport, state } = useTimeline();
 
   const closeAllModals = useCallback(() => {
@@ -24,6 +25,18 @@ function AppContent() {
 
   const handleEditNode = useCallback((nodeId: NodeId) => {
     setEditingNodeId(nodeId);
+    setActiveModal('node-editor');
+  }, []);
+
+  const handleAddEvent = useCallback(() => {
+    setEditingNodeId(null);
+    setNewNodeDurationType('instant');
+    setActiveModal('node-editor');
+  }, []);
+
+  const handleAddEra = useCallback(() => {
+    setEditingNodeId(null);
+    setNewNodeDurationType('interval');
     setActiveModal('node-editor');
   }, []);
 
@@ -59,6 +72,8 @@ function AppContent() {
   return (
     <>
       <AppLayout
+        onAddEvent={handleAddEvent}
+        onAddEra={handleAddEra}
         onAddRelationship={handleAddRelationship}
         onOpenHelp={handleOpenHelp}
         onPanToNode={handlePanToNode}
@@ -73,6 +88,7 @@ function AppContent() {
         nodeId={editingNodeId}
         isOpen={activeModal === 'node-editor'}
         onClose={closeAllModals}
+        initialDurationType={newNodeDurationType}
       />
 
       <RelationshipModal

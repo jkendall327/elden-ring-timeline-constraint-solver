@@ -7,6 +7,8 @@ interface NodeEditorModalProps {
   nodeId: NodeId | null;
   isOpen: boolean;
   onClose: () => void;
+  /** When creating a new node (nodeId is null), this sets the initial type */
+  initialDurationType?: DurationType;
 }
 
 interface NodeFormProps {
@@ -18,8 +20,9 @@ interface NodeFormProps {
     category?: string;
     enabled: boolean;
   }) => void;
-  onDelete: () => void;
+  onDelete?: () => void;
   onCancel: () => void;
+  isCreateMode?: boolean;
 }
 
 const CATEGORIES = [
@@ -33,7 +36,7 @@ const CATEGORIES = [
 ];
 
 // Separate form component that mounts fresh when modal opens
-function NodeForm({ node, onSave, onDelete, onCancel }: NodeFormProps) {
+function NodeForm({ node, onSave, onDelete, onCancel, isCreateMode }: NodeFormProps) {
   // Initialize state from props - runs once on mount
   const [name, setName] = useState(node.name);
   const [description, setDescription] = useState(node.description);
@@ -54,6 +57,7 @@ function NodeForm({ node, onSave, onDelete, onCancel }: NodeFormProps) {
   };
 
   const handleDelete = () => {
+    if (!onDelete) return;
     if (!showDeleteConfirm) {
       setShowDeleteConfirm(true);
       return;
@@ -141,18 +145,20 @@ function NodeForm({ node, onSave, onDelete, onCancel }: NodeFormProps) {
         </label>
       </div>
 
-      <div className="danger-zone">
-        <h4 className="danger-zone-title">Danger Zone</h4>
-        <p className="danger-zone-text">
-          Deleting this event will also remove all relationships connected to it.
-        </p>
-        <button
-          className="modal-btn modal-btn-danger"
-          onClick={handleDelete}
-        >
-          {showDeleteConfirm ? 'Click again to confirm' : 'Delete Event'}
-        </button>
-      </div>
+      {!isCreateMode && (
+        <div className="danger-zone">
+          <h4 className="danger-zone-title">Danger Zone</h4>
+          <p className="danger-zone-text">
+            Deleting this event will also remove all relationships connected to it.
+          </p>
+          <button
+            className="modal-btn modal-btn-danger"
+            onClick={handleDelete}
+          >
+            {showDeleteConfirm ? 'Click again to confirm' : 'Delete Event'}
+          </button>
+        </div>
+      )}
 
       <div className="modal-actions">
         <button className="modal-btn modal-btn-secondary" onClick={onCancel}>
@@ -163,16 +169,30 @@ function NodeForm({ node, onSave, onDelete, onCancel }: NodeFormProps) {
           onClick={handleSave}
           disabled={!name.trim()}
         >
-          Save Changes
+          {isCreateMode ? 'Create' : 'Save Changes'}
         </button>
       </div>
     </>
   );
 }
 
-export function NodeEditorModal({ nodeId, isOpen, onClose }: NodeEditorModalProps) {
-  const { state, updateNode, deleteNode } = useTimeline();
-  const node = nodeId ? state.nodes[nodeId] : null;
+export function NodeEditorModal({ nodeId, isOpen, onClose, initialDurationType = 'instant' }: NodeEditorModalProps) {
+  const { state, updateNode, deleteNode, addNode } = useTimeline();
+  const existingNode = nodeId ? state.nodes[nodeId] : null;
+  const isCreateMode = !nodeId;
+
+  // Default node for create mode
+  const defaultNode: TimelineNode = {
+    id: '',
+    name: '',
+    description: '',
+    durationType: initialDurationType,
+    enabled: true,
+    createdAt: 0,
+    updatedAt: 0,
+  };
+
+  const node = existingNode || defaultNode;
 
   const handleSave = (data: {
     name: string;
@@ -181,8 +201,11 @@ export function NodeEditorModal({ nodeId, isOpen, onClose }: NodeEditorModalProp
     category?: string;
     enabled: boolean;
   }) => {
-    if (!nodeId) return;
-    updateNode(nodeId, data);
+    if (isCreateMode) {
+      addNode(data);
+    } else {
+      updateNode(nodeId, data);
+    }
     onClose();
   };
 
@@ -192,15 +215,20 @@ export function NodeEditorModal({ nodeId, isOpen, onClose }: NodeEditorModalProp
     onClose();
   };
 
+  const title = isCreateMode
+    ? initialDurationType === 'interval' ? 'New Era' : 'New Event'
+    : 'Edit Event';
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Edit Event">
+    <Modal isOpen={isOpen} onClose={onClose} title={title}>
       {/* Form component mounts fresh each time modal opens */}
-      {isOpen && node && (
+      {isOpen && (
         <NodeForm
           node={node}
           onSave={handleSave}
-          onDelete={handleDelete}
+          onDelete={isCreateMode ? undefined : handleDelete}
           onCancel={onClose}
+          isCreateMode={isCreateMode}
         />
       )}
     </Modal>
