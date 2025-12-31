@@ -1,9 +1,13 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
-import type { TimelineNode, TemporalRelationship, SolverResult } from '../types';
+import { useEffect, useRef, useState, useCallback } from "react";
+import type {
+  TimelineNode,
+  TemporalRelationship,
+  SolverResult,
+} from "../types";
 import type {
   SolverWorkerRequest,
   SolverWorkerMessage,
-} from '../solver/solver.worker';
+} from "../solver/solver.worker";
 
 // Debounce delay for auto-solving
 const SOLVE_DEBOUNCE_MS = 300;
@@ -23,13 +27,16 @@ const WORKER_RETRY_DELAY_MS = 100;
  */
 export function useSolver(
   nodes: Record<string, TimelineNode>,
-  relationships: Record<string, TemporalRelationship>
+  relationships: Record<string, TemporalRelationship>,
 ) {
   const workerRef = useRef<Worker | null>(null);
   const requestIdRef = useRef(0);
   const pendingRequestRef = useRef<number | null>(null);
   const retryCountRef = useRef(0);
-  const pendingDataRef = useRef<{ nodes: TimelineNode[]; relationships: TemporalRelationship[] } | null>(null);
+  const pendingDataRef = useRef<{
+    nodes: TimelineNode[];
+    relationships: TemporalRelationship[];
+  } | null>(null);
 
   const [result, setResult] = useState<SolverResult | null>(null);
   const [isSolving, setIsSolving] = useState(false);
@@ -40,19 +47,21 @@ export function useSolver(
    */
   const createWorker = useCallback(() => {
     const worker = new Worker(
-      new URL('../solver/solver.worker.ts', import.meta.url),
-      { type: 'module' }
+      new URL("../solver/solver.worker.ts", import.meta.url),
+      { type: "module" },
     );
 
-    worker.onmessage = (event: MessageEvent<SolverWorkerMessage | { type: 'ready' }>) => {
+    worker.onmessage = (
+      event: MessageEvent<SolverWorkerMessage | { type: "ready" }>,
+    ) => {
       const message = event.data;
 
-      if (message.type === 'ready') {
+      if (message.type === "ready") {
         // Worker is ready - if we have pending data from a crash recovery, re-send it
         if (pendingDataRef.current && pendingRequestRef.current !== null) {
           const requestId = pendingRequestRef.current;
           const request: SolverWorkerRequest = {
-            type: 'solve',
+            type: "solve",
             input: pendingDataRef.current,
             requestId,
           };
@@ -61,7 +70,7 @@ export function useSolver(
         return;
       }
 
-      if (message.type === 'result') {
+      if (message.type === "result") {
         // Only accept result if it's from the latest request
         if (message.requestId === pendingRequestRef.current) {
           setResult(message.result);
@@ -71,7 +80,7 @@ export function useSolver(
           pendingDataRef.current = null;
           retryCountRef.current = 0; // Reset retry count on success
         }
-      } else if (message.type === 'error') {
+      } else {
         if (message.requestId === pendingRequestRef.current) {
           setError(message.error);
           setIsSolving(false);
@@ -82,12 +91,17 @@ export function useSolver(
     };
 
     worker.onerror = (event) => {
-      console.error('Solver worker error:', event);
+      console.error("Solver worker error:", event);
 
       // Attempt to recover from crash
-      if (retryCountRef.current < MAX_WORKER_RETRIES && pendingDataRef.current) {
+      if (
+        retryCountRef.current < MAX_WORKER_RETRIES &&
+        pendingDataRef.current
+      ) {
         retryCountRef.current++;
-        console.log(`Worker crashed, attempting recovery (attempt ${String(retryCountRef.current)}/${String(MAX_WORKER_RETRIES)})...`);
+        console.log(
+          `Worker crashed, attempting recovery (attempt ${String(retryCountRef.current)}/${String(MAX_WORKER_RETRIES)})...`,
+        );
 
         // Terminate the crashed worker
         worker.terminate();
@@ -97,7 +111,7 @@ export function useSolver(
           workerRef.current = createWorker();
         }, WORKER_RETRY_DELAY_MS);
       } else {
-        setError('Solver worker crashed');
+        setError("Solver worker crashed");
         setIsSolving(false);
         pendingRequestRef.current = null;
         pendingDataRef.current = null;
@@ -125,7 +139,7 @@ export function useSolver(
     // Get enabled nodes and relationships
     const enabledNodes = Object.values(nodes).filter((n) => n.enabled);
     const enabledRelationships = Object.values(relationships).filter(
-      (r) => r.enabled
+      (r) => r.enabled,
     );
 
     // Store pending data for crash recovery
@@ -141,7 +155,7 @@ export function useSolver(
     setIsSolving(true);
 
     const request: SolverWorkerRequest = {
-      type: 'solve',
+      type: "solve",
       input: inputData,
       requestId,
     };
@@ -155,7 +169,9 @@ export function useSolver(
       triggerSolve();
     }, SOLVE_DEBOUNCE_MS);
 
-    return () => { clearTimeout(timer); };
+    return () => {
+      clearTimeout(timer);
+    };
   }, [nodes, relationships, triggerSolve]);
 
   return {
@@ -172,16 +188,16 @@ export function useSolver(
  */
 export function useSyncSolver(
   nodes: Record<string, TimelineNode>,
-  relationships: Record<string, TemporalRelationship>
+  relationships: Record<string, TemporalRelationship>,
 ): SolverResult | null {
   const [result, setResult] = useState<SolverResult | null>(null);
 
   useEffect(() => {
     // Dynamically import to avoid bundling in main chunk
-    void import('../solver/solver').then(({ solve }) => {
+    void import("../solver/solver").then(({ solve }) => {
       const enabledNodes = Object.values(nodes).filter((n) => n.enabled);
       const enabledRelationships = Object.values(relationships).filter(
-        (r) => r.enabled
+        (r) => r.enabled,
       );
 
       const solverResult = solve({
