@@ -1,0 +1,97 @@
+.timeline-interval {
+  position: absolute;
+  top: 50%;
+  height: 60px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  z-index: 5;
+}
+
+.timeline-interval:hover {
+  z-index: 15;
+}
+
+.timeline-interval-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--interval-color, #6b7280);
+  opacity: 0.25;
+  border-radius: 4px;
+  border: 2px solid var(--interval-color, #6b7280);
+  transition: opacity 0.15s ease, box-shadow 0.15s ease;
+}
+
+.timeline-interval:hover .timeline-interval-bar {
+  opacity: 0.4;
+  box-shadow: 0 0 20px var(--interval-color, #6b7280);
+}
+
+.timeline-interval.selected .timeline-interval-bar {
+  opacity: 0.5;
+  border-color: #fff;
+  box-shadow: 0 0 0 2px #fff, 0 0 30px var(--interval-color, #6b7280);
+}
+
+.timeline-interval.disabled .timeline-interval-bar {
+  opacity: 0.1;
+  border-style: dashed;
+}
+
+.timeline-interval-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  white-space: nowrap;
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+.timeline-interval:hover .timeline-interval-label,
+.timeline-interval.selected .timeline-interval-label {
+  opacity: 1;
+}
+
+.timeline-interval-caps {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.timeline-interval-cap {
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--interval-color, #6b7280);
+  transform: translateY(-50%);
+  border: 2px solid #1a1a2e;
+}
+
+.timeline-interval-cap.left {
+  left: -4px;
+}
+
+.timeline-interval-cap.right {
+  right: -4px;
+}
+
+.timeline-interval.disabled .timeline-interval-cap {
+  opacity: 0.3;
+}
