@@ -62,3 +62,18 @@
 .timeline-node.disabled .timeline-node-label {
   color: #6a6a8a;
 }
+
+/* Conflict highlighting */
+.timeline-node.conflict .timeline-node-marker {
+  box-shadow: 0 0 0 2px var(--node-color, #6b7280), 0 0 0 4px #ef4444, 0 0 15px #ef4444;
+  animation: conflict-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes conflict-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 2px var(--node-color, #6b7280), 0 0 0 4px #ef4444, 0 0 15px #ef4444;
+  }
+  50% {
+    box-shadow: 0 0 0 2px var(--node-color, #6b7280), 0 0 0 6px #ef4444, 0 0 25px #ef4444;
+  }
+}

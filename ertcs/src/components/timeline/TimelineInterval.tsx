@@ -6,16 +6,24 @@ interface TimelineIntervalProps {
   node: TimelineNodeType;
   position: SolvedPosition;
   isSelected: boolean;
+  hasConflict?: boolean;
   onClick: (e: MouseEvent) => void;
 }
 
-export function TimelineInterval({ node, position, isSelected, onClick }: TimelineIntervalProps) {
+export function TimelineInterval({ node, position, isSelected, hasConflict, onClick }: TimelineIntervalProps) {
   const categoryColor = node.color || getCategoryColor(node.category);
   const width = Math.max(position.end - position.start, 20);
 
+  const classNames = [
+    'timeline-interval',
+    isSelected && 'selected',
+    !node.enabled && 'disabled',
+    hasConflict && 'conflict',
+  ].filter(Boolean).join(' ');
+
   return (
     <div
-      className={`timeline-interval ${isSelected ? 'selected' : ''} ${!node.enabled ? 'disabled' : ''}`}
+      className={classNames}
       style={{
         left: position.start,
         width,

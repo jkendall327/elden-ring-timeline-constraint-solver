@@ -95,3 +95,24 @@
 .timeline-interval.disabled .timeline-interval-cap {
   opacity: 0.3;
 }
+
+/* Conflict highlighting */
+.timeline-interval.conflict .timeline-interval-bar {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px #ef4444, 0 0 20px rgba(239, 68, 68, 0.5);
+  animation: conflict-pulse-interval 1.5s ease-in-out infinite;
+}
+
+.timeline-interval.conflict .timeline-interval-cap {
+  background: #ef4444;
+  box-shadow: 0 0 10px #ef4444;
+}
+
+@keyframes conflict-pulse-interval {
+  0%, 100% {
+    box-shadow: 0 0 0 2px #ef4444, 0 0 20px rgba(239, 68, 68, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 3px #ef4444, 0 0 30px rgba(239, 68, 68, 0.7);
+  }
+}

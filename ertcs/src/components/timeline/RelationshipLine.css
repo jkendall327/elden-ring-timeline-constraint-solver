@@ -1,0 +1,76 @@
+.relationship-line {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.relationship-line-path {
+  transition: stroke-width 0.15s ease, stroke-opacity 0.15s ease;
+}
+
+.relationship-line-arrow {
+  transition: transform 0.15s ease;
+}
+
+.relationship-line:hover .relationship-line-path {
+  stroke-width: 3;
+  stroke-opacity: 1;
+}
+
+.relationship-line:hover .relationship-line-arrow {
+  transform-origin: center;
+}
+
+/* Confidence level styles */
+.relationship-line.confidence-explicit .relationship-line-path {
+  stroke-dasharray: none;
+}
+
+.relationship-line.confidence-inferred .relationship-line-path {
+  stroke-dasharray: 8 4;
+}
+
+.relationship-line.confidence-speculation .relationship-line-path {
+  stroke-dasharray: 4 4;
+}
+
+/* Violated relationship styles */
+.relationship-line.violated .relationship-line-path {
+  stroke-dasharray: none;
+  animation: pulse-line 1.5s ease-in-out infinite;
+}
+
+.relationship-line.violated .relationship-line-glow {
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-line {
+  0%, 100% {
+    stroke-opacity: 0.8;
+  }
+  50% {
+    stroke-opacity: 1;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    stroke-opacity: 0.2;
+  }
+  50% {
+    stroke-opacity: 0.4;
+  }
+}
+
+/* Animation for lines appearing */
+.relationship-lines-container {
+  animation: fade-in 0.2s ease;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

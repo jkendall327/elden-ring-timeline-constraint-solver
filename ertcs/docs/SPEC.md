@@ -329,24 +329,36 @@ interface HistoryState<T> {
   - Delete/Backspace to delete selected node
 - [x] Updated `TimelineTrack.tsx` to open editor on clicking selected node
 
-### Phase 4: Relationship Visualization - NOT STARTED
+### Phase 4: Relationship Visualization - COMPLETE
 
-- [ ] `src/components/timeline/RelationshipLine.tsx`
-  - SVG arrows/lines connecting related nodes
+- [x] `src/components/timeline/RelationshipLine.tsx`
+  - SVG curved arrows connecting related nodes
   - Only shown when a node is selected
   - Color by confidence: green (explicit), yellow (inferred), orange (speculation)
-  - Different line styles for different relation types (optional)
-  - Animate in/out on selection change
-- [ ] Update `TimelineTrack.tsx` to render RelationshipLines
+  - Different line styles: solid (explicit), dashed (inferred), dotted (speculation)
+  - Clickable lines for future editing support
+  - Arrowheads indicating direction
+- [x] `src/components/timeline/RelationshipLine.css`
+  - Hover effects for lines
+  - Animated glow for violated relationships
+  - Fade-in animation when appearing
+- [x] Updated `TimelineTrack.tsx` to render RelationshipLines
   - Get relationships involving selected node
   - Calculate line positions from node positions
-  - Render as SVG overlay
-- [ ] Conflict highlighting
-  - Red border/glow on nodes involved in conflicts
+  - SVG overlay for rendering lines
+  - Position map for quick lookups
+  - Track violated relationship IDs
+- [x] Conflict highlighting
+  - Red pulsing border/glow on nodes involved in conflicts
   - Red relationship lines for violated constraints
-  - Tooltip showing conflict details
+  - Updated `TimelineNode.tsx` with `hasConflict` prop
+  - Updated `TimelineInterval.tsx` with `hasConflict` prop
+  - Animated conflict indicators
 
 ### Phase 5: Panels & Information - NOT STARTED
+
+User notes:
+- I don't care about having categories for nodes, you can kill that feature.
 
 - [ ] `src/components/panels/NodeList.tsx` - Sidebar listing
   - List all nodes (grouped by category?)
@@ -400,6 +412,10 @@ interface HistoryState<T> {
   - Worker crash recovery
   - Invalid data migration
 
+## Phase 7 - final stuff
+- Add tests!
+- Add Github deployment pipeline.
+
 ---
 
 ## Current State Summary
@@ -415,14 +431,17 @@ interface HistoryState<T> {
 - Can create relationships between nodes via toolbar button
 - Help modal with documentation
 - Delete nodes via keyboard (Delete/Backspace)
+- Relationship lines shown when node is selected
+- Lines colored by confidence level (green/yellow/orange)
+- Conflict highlighting on nodes and relationships (red pulsing glow)
 
 **What's missing for MVP:**
-1. Cannot see relationships visually (need RelationshipLine)
-2. No way to see conflicts (need ConflictPanel)
+1. No sidebar panels to list nodes/relationships (need NodeList, RelationshipList)
+2. No way to see conflict details (need ConflictPanel)
 3. No pre-loaded data (need defaultTimeline.ts)
 
 **Recommended next steps:**
-1. Add RelationshipLine visualization (Phase 4)
+1. Add sidebar panels for listing nodes and relationships (Phase 5)
 2. Add ConflictPanel to show solver status (Phase 5)
 3. Create default Elden Ring dataset (Phase 6)
 

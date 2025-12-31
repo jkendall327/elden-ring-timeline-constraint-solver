@@ -6,15 +6,23 @@ interface TimelineNodeProps {
   node: TimelineNodeType;
   position: SolvedPosition;
   isSelected: boolean;
+  hasConflict?: boolean;
   onClick: (e: MouseEvent) => void;
 }
 
-export function TimelineNode({ node, position, isSelected, onClick }: TimelineNodeProps) {
+export function TimelineNode({ node, position, isSelected, hasConflict, onClick }: TimelineNodeProps) {
   const categoryColor = node.color || getCategoryColor(node.category);
+
+  const classNames = [
+    'timeline-node',
+    isSelected && 'selected',
+    !node.enabled && 'disabled',
+    hasConflict && 'conflict',
+  ].filter(Boolean).join(' ');
 
   return (
     <div
-      className={`timeline-node ${isSelected ? 'selected' : ''} ${!node.enabled ? 'disabled' : ''}`}
+      className={classNames}
       style={{
         left: position.start,
         '--node-color': categoryColor,
