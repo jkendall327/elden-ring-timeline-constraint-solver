@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { TimelineProvider } from './context/TimelineContext';
+import { TimelineProvider, useTimeline } from './context/TimelineContext';
 import { AppLayout } from './components/layout/AppLayout';
 import { TimelineCanvas } from './components/timeline/TimelineCanvas';
 import { TimelineTrack } from './components/timeline/TimelineTrack';
@@ -14,6 +14,7 @@ function AppContent() {
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [editingNodeId, setEditingNodeId] = useState<NodeId | null>(null);
   const [editingRelationshipId, setEditingRelationshipId] = useState<RelationshipId | null>(null);
+  const { setViewport, state } = useTimeline();
 
   const closeAllModals = useCallback(() => {
     setActiveModal(null);
@@ -35,6 +36,20 @@ function AppContent() {
     setActiveModal('help');
   }, []);
 
+  const handlePanToNode = useCallback((_nodeId: string, position: number) => {
+    // Pan viewport to center the node position
+    // position is in timeline coordinates (0-1 range typically)
+    // We'll estimate a center position based on an assumed container width
+    const estimatedContainerWidth = 800;
+    const panX = estimatedContainerWidth / 2 - position * state.viewport.zoom;
+    setViewport({ ...state.viewport, panX });
+  }, [setViewport, state.viewport]);
+
+  const handleEditRelationship = useCallback((relationshipId: string) => {
+    setEditingRelationshipId(relationshipId);
+    setActiveModal('relationship-editor');
+  }, []);
+
   // Keyboard shortcuts
   useKeyboardShortcuts({
     onEscape: closeAllModals,
@@ -46,6 +61,8 @@ function AppContent() {
       <AppLayout
         onAddRelationship={handleAddRelationship}
         onOpenHelp={handleOpenHelp}
+        onPanToNode={handlePanToNode}
+        onEditRelationship={handleEditRelationship}
       >
         <TimelineCanvas>
           <TimelineTrack onEditNode={handleEditNode} />

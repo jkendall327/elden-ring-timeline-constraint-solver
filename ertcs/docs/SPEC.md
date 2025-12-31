@@ -130,7 +130,11 @@ src/
 │   │   └── RelationshipLine.tsx  # Connection arrows (on-demand)
 │   ├── panels/
 │   │   ├── NodeList.tsx          # Sidebar node listing
-│   │   └── ConflictPanel.tsx     # Violation warnings
+│   │   ├── RelationshipList.tsx  # Sidebar relationship listing
+│   │   ├── ConflictPanel.tsx     # Solver status & violations
+│   │   ├── Sidebar.tsx           # Tabbed sidebar container
+│   │   ├── Panels.css            # Panel styling
+│   │   └── index.ts              # Exports
 │   ├── modals/
 │   │   ├── NodeEditorModal.tsx   # Create/edit node
 │   │   ├── RelationshipModal.tsx # Create/edit relationship
@@ -355,37 +359,37 @@ interface HistoryState<T> {
   - Updated `TimelineInterval.tsx` with `hasConflict` prop
   - Animated conflict indicators
 
-### Phase 5: Panels & Information - NOT STARTED
+### Phase 5: Panels & Information - COMPLETE
 
 User notes:
-- I don't care about having categories for nodes, you can kill that feature.
+- Categories feature removed per user request.
 
-- [ ] `src/components/panels/NodeList.tsx` - Sidebar listing
-  - List all nodes (grouped by category?)
+- [x] `src/components/panels/NodeList.tsx` - Sidebar listing
+  - List all nodes
   - Show enabled/disabled state
   - Click to select and pan to node
   - Quick enable/disable toggle
   - Search/filter functionality
-- [ ] `src/components/panels/RelationshipList.tsx` - Sidebar listing
+- [x] `src/components/panels/RelationshipList.tsx` - Sidebar listing
   - List all relationships
   - Show source → relation → target
   - Color by confidence
-  - Click to highlight both nodes
+  - Click to highlight involved nodes
   - Quick enable/disable toggle
-- [ ] `src/components/panels/ConflictPanel.tsx`
+- [x] `src/components/panels/ConflictPanel.tsx`
   - Show current solver status (satisfiable/relaxed/unsatisfiable)
-  - List violated constraints with explanations
+  - Solve time display
+  - List violated/relaxed constraints with explanations
   - List unresolvable conflicts
   - Click to highlight involved nodes
   - Suggestions: "Try disabling X or Y"
-- [ ] `src/components/modals/HelpModal.tsx`
-  - Project explanation and purpose
-  - Allen relation reference with visual diagrams
-  - How to use the app (tutorial)
-  - Credits
-- [ ] Sidebar layout integration
+- [x] `src/components/panels/Sidebar.tsx` - Sidebar container
   - Collapsible sidebar
-  - Tabs or accordion for different panels
+  - Tabbed interface (Events, Relations, Status)
+  - Badge counts for items and warnings
+- [x] `src/components/panels/Panels.css` - Panel styling
+- [x] Sidebar layout integration in AppLayout
+- Note: HelpModal was already completed in Phase 3
 
 ### Phase 6: Data & Polish - NOT STARTED
 
@@ -415,6 +419,7 @@ User notes:
 ## Phase 7 - final stuff
 - Add tests!
 - Add Github deployment pipeline.
+- Find places where we can remove useMemo etc. because we are using the React Compiler.
 
 ---
 
@@ -434,16 +439,19 @@ User notes:
 - Relationship lines shown when node is selected
 - Lines colored by confidence level (green/yellow/orange)
 - Conflict highlighting on nodes and relationships (red pulsing glow)
+- Sidebar with three tabbed panels:
+  - Events panel: List, search, filter nodes; click to select/pan; toggle enabled state
+  - Relations panel: List all relationships with confidence colors; toggle enabled state
+  - Status panel: Solver status, solve time, violations, conflicts, resolution suggestions
+- Collapsible sidebar
 
 **What's missing for MVP:**
-1. No sidebar panels to list nodes/relationships (need NodeList, RelationshipList)
-2. No way to see conflict details (need ConflictPanel)
-3. No pre-loaded data (need defaultTimeline.ts)
+1. No pre-loaded data (need defaultTimeline.ts)
 
 **Recommended next steps:**
-1. Add sidebar panels for listing nodes and relationships (Phase 5)
-2. Add ConflictPanel to show solver status (Phase 5)
-3. Create default Elden Ring dataset (Phase 6)
+1. Create default Elden Ring dataset (Phase 6)
+2. Visual polish and performance testing (Phase 6)
+3. Add tests and deployment pipeline (Phase 7)
 
 ---
 

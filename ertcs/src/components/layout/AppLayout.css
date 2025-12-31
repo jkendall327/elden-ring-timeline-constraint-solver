@@ -101,5 +101,11 @@
 
 .app-main {
   flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.app-content {
+  flex: 1;
   overflow: hidden;
 }

@@ -1,14 +1,17 @@
 import type { ReactNode } from 'react';
 import { useTimeline } from '../../context/TimelineContext';
+import { Sidebar } from '../panels/Sidebar';
 import './AppLayout.css';
 
 interface AppLayoutProps {
   children: ReactNode;
   onAddRelationship: () => void;
   onOpenHelp: () => void;
+  onPanToNode?: (nodeId: string, position: number) => void;
+  onEditRelationship?: (relationshipId: string) => void;
 }
 
-export function AppLayout({ children, onAddRelationship, onOpenHelp }: AppLayoutProps) {
+export function AppLayout({ children, onAddRelationship, onOpenHelp, onPanToNode, onEditRelationship }: AppLayoutProps) {
   const { canUndo, canRedo, undo, redo, addNode, state } = useTimeline();
   const hasEnoughNodes = state.nodeOrder.length >= 2;
 
@@ -87,7 +90,13 @@ export function AppLayout({ children, onAddRelationship, onOpenHelp }: AppLayout
         </div>
       </header>
       <main className="app-main">
-        {children}
+        <div className="app-content">
+          {children}
+        </div>
+        <Sidebar
+          onPanToNode={onPanToNode}
+          onEditRelationship={onEditRelationship}
+        />
       </main>
     </div>
   );
