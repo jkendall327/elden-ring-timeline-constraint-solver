@@ -59,13 +59,13 @@ export function NodeList({ onPanToNode }: NodeListProps) {
           type="text"
           placeholder="Search events..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => { setSearchTerm(e.target.value); }}
           className="panel-search-input"
         />
         {searchTerm && (
           <button
             className="panel-search-clear"
-            onClick={() => setSearchTerm('')}
+            onClick={() => { setSearchTerm(''); }}
             title="Clear search"
           >
             ×
@@ -82,7 +82,7 @@ export function NodeList({ onPanToNode }: NodeListProps) {
             <div
               key={node.id}
               className={`panel-item ${state.selectedNodeId === node.id ? 'selected' : ''} ${!node.enabled ? 'disabled' : ''}`}
-              onClick={() => handleNodeClick(node)}
+              onClick={() => { handleNodeClick(node); }}
             >
               <div className="panel-item-icon">
                 {node.durationType === 'instant' ? (
@@ -99,7 +99,7 @@ export function NodeList({ onPanToNode }: NodeListProps) {
               </div>
               <button
                 className={`panel-toggle ${node.enabled ? 'enabled' : ''}`}
-                onClick={(e) => handleToggle(e, node.id)}
+                onClick={(e) => { handleToggle(e, node.id); }}
                 title={node.enabled ? 'Disable' : 'Enable'}
               >
                 {node.enabled ? 'ON' : 'OFF'}

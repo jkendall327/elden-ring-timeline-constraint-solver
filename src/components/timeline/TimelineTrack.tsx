@@ -27,7 +27,7 @@ export function TimelineTrack({ onEditNode, onEditRelationship }: TimelineTrackP
     // Default: spread nodes evenly if no solver result
     const enabledNodes = nodeOrder
       .map((id) => nodes[id])
-      .filter((n) => n && n.enabled);
+      .filter((n) => n?.enabled);
 
     if (enabledNodes.length === 0) return [];
 
@@ -43,12 +43,12 @@ export function TimelineTrack({ onEditNode, onEditRelationship }: TimelineTrackP
 
   // Separate instants from intervals for layering
   const { instants, intervals } = useMemo(() => {
-    const instants: Array<{ node: typeof nodes[string]; position: SolvedPosition }> = [];
-    const intervals: Array<{ node: typeof nodes[string]; position: SolvedPosition }> = [];
+    const instants: { node: typeof nodes[string]; position: SolvedPosition }[] = [];
+    const intervals: { node: typeof nodes[string]; position: SolvedPosition }[] = [];
 
     for (const pos of positions) {
       const node = nodes[pos.nodeId];
-      if (!node || !node.enabled) continue;
+      if (!node?.enabled) continue;
 
       if (node.durationType === 'instant') {
         instants.push({ node, position: pos });
@@ -76,7 +76,7 @@ export function TimelineTrack({ onEditNode, onEditRelationship }: TimelineTrackP
     return relationshipOrder
       .map((id) => relationships[id])
       .filter((rel) => {
-        if (!rel || !rel.enabled) return false;
+        if (!rel?.enabled) return false;
         return rel.sourceId === selectedNodeId || rel.targetId === selectedNodeId;
       });
   }, [selectedNodeId, relationships, relationshipOrder]);

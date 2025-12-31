@@ -155,7 +155,7 @@ export function useSolver(
       triggerSolve();
     }, SOLVE_DEBOUNCE_MS);
 
-    return () => clearTimeout(timer);
+    return () => { clearTimeout(timer); };
   }, [nodes, relationships, triggerSolve]);
 
   return {

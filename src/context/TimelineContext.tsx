@@ -1,6 +1,6 @@
 import {
   createContext,
-  useContext,
+  use,
   useReducer,
   useCallback,
   useEffect,
@@ -254,7 +254,7 @@ function deserializeState(data: SerializedTimeline): TimelineState {
  * Add migration logic here as the schema evolves.
  */
 function migrateData(data: SerializedTimeline): SerializedTimeline {
-  let migrated = { ...data };
+  const migrated = { ...data };
 
   // Version 0 or undefined -> Version 1
   if (!migrated.version || migrated.version < 1) {
@@ -450,7 +450,7 @@ export function TimelineProvider({ children }: TimelineProviderProps) {
         setStorageError(null);
       }
     }, AUTO_SAVE_DELAY);
-    return () => clearTimeout(timer);
+    return () => { clearTimeout(timer); };
   }, [state]);
 
   // Action creators
@@ -596,9 +596,9 @@ export function TimelineProvider({ children }: TimelineProviderProps) {
   };
 
   return (
-    <TimelineContext.Provider value={value}>
+    <TimelineContext value={value}>
       {children}
-    </TimelineContext.Provider>
+    </TimelineContext>
   );
 }
 
@@ -607,7 +607,7 @@ export function TimelineProvider({ children }: TimelineProviderProps) {
 // =====================================
 
 export function useTimeline(): TimelineContextValue {
-  const context = useContext(TimelineContext);
+  const context = use(TimelineContext);
   if (!context) {
     throw new Error('useTimeline must be used within a TimelineProvider');
   }

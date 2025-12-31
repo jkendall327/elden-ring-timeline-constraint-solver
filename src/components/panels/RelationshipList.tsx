@@ -68,7 +68,7 @@ export function RelationshipList({ onEditRelationship }: RelationshipListProps) 
               <div
                 key={rel.id}
                 className={`panel-item relationship-item ${!rel.enabled ? 'disabled' : ''} ${isViolated ? 'violated' : ''}`}
-                onClick={() => handleRelationshipClick(rel)}
+                onClick={() => { handleRelationshipClick(rel); }}
               >
                 <div
                   className="relationship-confidence-dot"
@@ -94,7 +94,7 @@ export function RelationshipList({ onEditRelationship }: RelationshipListProps) 
                 </div>
                 <button
                   className={`panel-toggle ${rel.enabled ? 'enabled' : ''}`}
-                  onClick={(e) => handleToggle(e, rel.id)}
+                  onClick={(e) => { handleToggle(e, rel.id); }}
                   title={rel.enabled ? 'Disable' : 'Enable'}
                 >
                   {rel.enabled ? 'ON' : 'OFF'}

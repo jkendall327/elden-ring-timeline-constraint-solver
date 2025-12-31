@@ -127,7 +127,7 @@ function RelationshipForm({
           id="rel-source"
           className="form-select"
           value={sourceId}
-          onChange={(e) => setSourceId(e.target.value as NodeId)}
+          onChange={(e) => { setSourceId(e.target.value); }}
         >
           <option value="">Select an event...</option>
           {sortedNodes.map((node) => (
@@ -145,7 +145,7 @@ function RelationshipForm({
           id="rel-type"
           className="form-select"
           value={relation}
-          onChange={(e) => setRelation(e.target.value as AllenRelation)}
+          onChange={(e) => { setRelation(e.target.value as AllenRelation); }}
         >
           {ALLEN_RELATIONS.map((rel) => (
             <option key={rel} value={rel}>
@@ -162,7 +162,7 @@ function RelationshipForm({
           id="rel-target"
           className="form-select"
           value={targetId}
-          onChange={(e) => setTargetId(e.target.value as NodeId)}
+          onChange={(e) => { setTargetId(e.target.value); }}
         >
           <option value="">Select an event...</option>
           {sortedNodes.map((node) => (
@@ -180,7 +180,7 @@ function RelationshipForm({
           id="rel-confidence"
           className="form-select"
           value={confidence}
-          onChange={(e) => setConfidence(e.target.value as ConfidenceLevel)}
+          onChange={(e) => { setConfidence(e.target.value as ConfidenceLevel); }}
         >
           {CONFIDENCE_LEVELS.map((level) => (
             <option key={level} value={level}>
@@ -197,7 +197,7 @@ function RelationshipForm({
           id="rel-reasoning"
           className="form-textarea"
           value={reasoning}
-          onChange={(e) => setReasoning(e.target.value)}
+          onChange={(e) => { setReasoning(e.target.value); }}
           placeholder="Why do you believe this relationship exists? Cite item descriptions, dialogue, etc."
         />
       </div>
@@ -210,7 +210,7 @@ function RelationshipForm({
             <input
               type="checkbox"
               checked={enabled}
-              onChange={(e) => setEnabled(e.target.checked)}
+              onChange={(e) => { setEnabled(e.target.checked); }}
             />
             <span className="toggle-slider" />
           </label>

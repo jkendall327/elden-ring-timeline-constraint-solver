@@ -21,8 +21,8 @@ export interface STNEdge {
  * negative-weight cycles, which can be detected using Bellman-Ford.
  */
 export class SimpleTemporalNetwork {
-  private vertices: Set<string> = new Set();
-  private adjacencyList: Map<string, STNEdge[]> = new Map();
+  private vertices = new Set<string>();
+  private adjacencyList = new Map<string, STNEdge[]>();
   private edgeCount = 0;
 
   /**

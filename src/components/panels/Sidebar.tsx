@@ -27,7 +27,7 @@ export function Sidebar({ onPanToNode, onEditRelationship }: SidebarProps) {
         <h2 className="sidebar-title">Inspector</h2>
         <button
           className="sidebar-toggle"
-          onClick={() => setIsCollapsed(!isCollapsed)}
+          onClick={() => { setIsCollapsed(!isCollapsed); }}
           title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {isCollapsed ? '◀' : '▶'}
@@ -39,21 +39,21 @@ export function Sidebar({ onPanToNode, onEditRelationship }: SidebarProps) {
           <div className="sidebar-tabs">
             <button
               className={`sidebar-tab ${activeTab === 'events' ? 'active' : ''}`}
-              onClick={() => setActiveTab('events')}
+              onClick={() => { setActiveTab('events'); }}
             >
               Events
               <span className="sidebar-tab-badge">{nodeCount}</span>
             </button>
             <button
               className={`sidebar-tab ${activeTab === 'relationships' ? 'active' : ''}`}
-              onClick={() => setActiveTab('relationships')}
+              onClick={() => { setActiveTab('relationships'); }}
             >
               Relations
               <span className="sidebar-tab-badge">{relationshipCount}</span>
             </button>
             <button
               className={`sidebar-tab ${activeTab === 'conflicts' ? 'active' : ''}`}
-              onClick={() => setActiveTab('conflicts')}
+              onClick={() => { setActiveTab('conflicts'); }}
             >
               Status
               {conflictCount > 0 && (

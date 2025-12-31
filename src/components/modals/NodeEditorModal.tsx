@@ -74,7 +74,7 @@ function NodeForm({ node, onSave, onDelete, onCancel, isCreateMode }: NodeFormPr
           type="text"
           className="form-input"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => { setName(e.target.value); }}
           placeholder="Enter event name"
           autoFocus
         />
@@ -86,7 +86,7 @@ function NodeForm({ node, onSave, onDelete, onCancel, isCreateMode }: NodeFormPr
           id="node-description"
           className="form-textarea"
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={(e) => { setDescription(e.target.value); }}
           placeholder="Enter description or evidence..."
         />
       </div>
@@ -100,7 +100,7 @@ function NodeForm({ node, onSave, onDelete, onCancel, isCreateMode }: NodeFormPr
               name="durationType"
               value="instant"
               checked={durationType === 'instant'}
-              onChange={() => setDurationType('instant')}
+              onChange={() => { setDurationType('instant'); }}
             />
             Instant Event
           </label>
@@ -110,7 +110,7 @@ function NodeForm({ node, onSave, onDelete, onCancel, isCreateMode }: NodeFormPr
               name="durationType"
               value="interval"
               checked={durationType === 'interval'}
-              onChange={() => setDurationType('interval')}
+              onChange={() => { setDurationType('interval'); }}
             />
             Era / Duration
           </label>
@@ -123,7 +123,7 @@ function NodeForm({ node, onSave, onDelete, onCancel, isCreateMode }: NodeFormPr
           id="node-category"
           className="form-select"
           value={category}
-          onChange={(e) => setCategory(e.target.value)}
+          onChange={(e) => { setCategory(e.target.value); }}
         >
           {CATEGORIES.map((cat) => (
             <option key={cat.value} value={cat.value}>
@@ -139,7 +139,7 @@ function NodeForm({ node, onSave, onDelete, onCancel, isCreateMode }: NodeFormPr
           <input
             type="checkbox"
             checked={enabled}
-            onChange={(e) => setEnabled(e.target.checked)}
+            onChange={(e) => { setEnabled(e.target.checked); }}
           />
           <span className="toggle-slider" />
         </label>

@@ -79,7 +79,7 @@ function getConnectionPoints(
 function createCurvedPath(
   source: { x: number; y: number },
   target: { x: number; y: number },
-  curveOffset: number = 0
+  curveOffset = 0
 ): string {
   const midX = (source.x + target.x) / 2;
   const midY = source.y - 40 - curveOffset; // Curve above the timeline

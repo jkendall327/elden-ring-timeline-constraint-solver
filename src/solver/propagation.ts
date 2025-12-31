@@ -161,8 +161,8 @@ export function checkNetworkConsistency(
 export function findAllConflicts(
   network: SimpleTemporalNetwork,
   maxIterations = 10
-): Array<{ edges: STNEdge[]; relationshipIds: Set<string> }> {
-  const conflicts: Array<{ edges: STNEdge[]; relationshipIds: Set<string> }> = [];
+): { edges: STNEdge[]; relationshipIds: Set<string> }[] {
+  const conflicts: { edges: STNEdge[]; relationshipIds: Set<string> }[] = [];
   const workingNetwork = network.clone();
 
   for (let i = 0; i < maxIterations; i++) {
