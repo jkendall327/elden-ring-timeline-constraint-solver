@@ -5,7 +5,6 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useState,
   type ReactNode,
 } from 'react';
 import { produce } from 'immer';
@@ -23,6 +22,7 @@ import type {
   SerializedTimeline,
   SolverResult,
 } from '../types';
+import { useSolver } from '../hooks/useSolver';
 
 // =====================================
 // Constants
@@ -306,7 +306,7 @@ interface TimelineContextValue {
   resetState: () => void;
 
   // Solver
-  setSolverResult: (result: SolverResult | null) => void;
+  triggerSolve: () => void;
 }
 
 const TimelineContext = createContext<TimelineContextValue | null>(null);
@@ -331,12 +331,17 @@ export function TimelineProvider({ children }: TimelineProviderProps) {
   }, []);
 
   const [historyState, dispatch] = useReducer(historyReducer, initialState);
-  const [solverResult, setSolverResult] = useState<SolverResult | null>(null);
-  const [isSolving] = useState(false); // TODO: setIsSolving will be used by solver
 
   const state = historyState.present;
   const canUndo = historyState.past.length > 0;
   const canRedo = historyState.future.length > 0;
+
+  // Solver integration
+  const {
+    result: solverResult,
+    isSolving,
+    triggerSolve,
+  } = useSolver(state.nodes, state.relationships);
 
   // Auto-save effect
   useEffect(() => {
@@ -484,7 +489,7 @@ export function TimelineProvider({ children }: TimelineProviderProps) {
     redo,
     loadState: loadStateAction,
     resetState,
-    setSolverResult,
+    triggerSolve,
   };
 
   return (
