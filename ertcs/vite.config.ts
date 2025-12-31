@@ -10,4 +10,8 @@ export default defineConfig({
       },
     }),
   ],
+  // Base path for GitHub Pages deployment
+  // Set to repo name when deploying to https://<user>.github.io/<repo>/
+  // Leave as '/' for root domain or local development
+  base: process.env.GITHUB_ACTIONS ? '/ertcs/' : '/',
 })

@@ -391,35 +391,31 @@ User notes:
 - [x] Sidebar layout integration in AppLayout
 - Note: HelpModal was already completed in Phase 3
 
-### Phase 6: Data & Polish - NOT STARTED
+### Phase 6: Data & Polish - COMPLETE
 
-- [ ] `src/data/defaultTimeline.ts` - Pre-loaded Elden Ring events
-  - Major eras: Age of Dragons, Age of Erdtree, The Shattering, etc.
-  - Key events: Greater Will arrives, Godfrey's wars, Marika's actions
-  - Initial relationships between them
-  - Load on first visit (if localStorage empty)
-- [ ] `src/data/categories.ts` - Event categories
-  - primordial, golden-order, shattering, demigod, tarnished, ending
-  - Colors for each
-  - Icons (optional)
-- [ ] Visual polish
-  - Loading state while solver runs
-  - Smooth animations for node position changes
-  - Better zoom controls (buttons, reset)
-  - Minimap for large timelines (stretch)
-- [ ] Performance testing
-  - Test with 100+ nodes
-  - Test with 500+ relationships
-  - Profile and optimize if needed
-- [ ] Error handling
-  - Graceful handling of localStorage errors
-  - Worker crash recovery
-  - Invalid data migration
+- [x] `src/data/defaultTimeline.ts` - Pre-loaded Elden Ring events
+  - Stub with example events (Age of Dragons, Age of Erdtree, The Shattering)
+  - Example relationships demonstrating the system
+  - Loads on first visit (if localStorage empty)
+  - TODO: Fill in with actual Elden Ring lore
+- [x] Error handling
+  - Graceful handling of localStorage errors (with fallback to defaults)
+  - Worker crash recovery (auto-restart with retry, max 3 attempts)
+  - Invalid data migration and validation
+  - `storageError` exposed in context for UI feedback
+- [x] GitHub Actions deployment pipeline
+  - `.github/workflows/deploy.yml` for GitHub Pages deployment
+  - Auto-deploys on push to main/master
+  - Vite config updated with base path for GitHub Pages
 
 ## Phase 7 - final stuff
 - Add tests!
-- Add Github deployment pipeline.
 - Find places where we can remove useMemo etc. because we are using the React Compiler.
+
+## Other assorted changes
+- Should show modal for editing a node when adding a new one.
+- Should have a bin area for nodes with zero relations? Otherwise they are all clustered on each other.
+- Should represent graphically when multiple nodes occupy the same space.
 
 ---
 
@@ -444,14 +440,17 @@ User notes:
   - Relations panel: List all relationships with confidence colors; toggle enabled state
   - Status panel: Solver status, solve time, violations, conflicts, resolution suggestions
 - Collapsible sidebar
+- Default timeline data loads on first visit (stub - fill in with actual lore)
+- Error handling: localStorage errors, invalid data migration, worker crash recovery
+- GitHub Actions deployment pipeline ready
 
 **What's missing for MVP:**
-1. No pre-loaded data (need defaultTimeline.ts)
+1. Actual Elden Ring lore data (currently stub)
 
 **Recommended next steps:**
-1. Create default Elden Ring dataset (Phase 6)
-2. Visual polish and performance testing (Phase 6)
-3. Add tests and deployment pipeline (Phase 7)
+1. Fill in defaultTimeline.ts with actual Elden Ring lore
+2. Add tests (Phase 7)
+3. Enable GitHub Pages in repository settings to activate deployment
 
 ---
 

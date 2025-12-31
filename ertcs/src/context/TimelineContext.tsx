@@ -5,6 +5,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useState,
   type ReactNode,
 } from 'react';
 import { produce } from 'immer';
@@ -23,6 +24,7 @@ import type {
   SolverResult,
 } from '../types';
 import { useSolver } from '../hooks/useSolver';
+import { DEFAULT_TIMELINE, isFirstVisit } from '../data/defaultTimeline';
 
 // =====================================
 // Constants
@@ -214,9 +216,11 @@ const historyReducer = createHistoryReducer(timelineReducer, MAX_HISTORY);
 // Persistence
 // =====================================
 
+const CURRENT_VERSION = 1;
+
 function serializeState(state: TimelineState): SerializedTimeline {
   return {
-    version: 1,
+    version: CURRENT_VERSION,
     nodes: Object.values(state.nodes),
     relationships: Object.values(state.relationships),
     viewport: state.viewport,
@@ -245,25 +249,114 @@ function deserializeState(data: SerializedTimeline): TimelineState {
   };
 }
 
-function saveToStorage(state: TimelineState): void {
+/**
+ * Migrate data from older versions to current version.
+ * Add migration logic here as the schema evolves.
+ */
+function migrateData(data: SerializedTimeline): SerializedTimeline {
+  let migrated = { ...data };
+
+  // Version 0 or undefined -> Version 1
+  if (!migrated.version || migrated.version < 1) {
+    // Ensure all nodes have required fields
+    migrated.nodes = migrated.nodes.map((node) => ({
+      ...node,
+      enabled: node.enabled ?? true,
+      createdAt: node.createdAt ?? Date.now(),
+      updatedAt: node.updatedAt ?? Date.now(),
+    }));
+    // Ensure all relationships have required fields
+    migrated.relationships = migrated.relationships.map((rel) => ({
+      ...rel,
+      enabled: rel.enabled ?? true,
+      createdAt: rel.createdAt ?? Date.now(),
+      updatedAt: rel.updatedAt ?? Date.now(),
+    }));
+    migrated.version = 1;
+  }
+
+  // Future migrations go here:
+  // if (migrated.version < 2) { ... migrated.version = 2; }
+
+  return migrated;
+}
+
+/**
+ * Validate that data has required structure.
+ */
+function validateData(data: unknown): data is SerializedTimeline {
+  if (!data || typeof data !== 'object') return false;
+  const d = data as Record<string, unknown>;
+
+  if (!Array.isArray(d.nodes)) return false;
+  if (!Array.isArray(d.relationships)) return false;
+  if (!d.viewport || typeof d.viewport !== 'object') return false;
+
+  // Validate each node has at minimum an id and name
+  for (const node of d.nodes as unknown[]) {
+    if (!node || typeof node !== 'object') return false;
+    const n = node as Record<string, unknown>;
+    if (typeof n.id !== 'string' || typeof n.name !== 'string') return false;
+  }
+
+  // Validate each relationship has required fields
+  for (const rel of d.relationships as unknown[]) {
+    if (!rel || typeof rel !== 'object') return false;
+    const r = rel as Record<string, unknown>;
+    if (typeof r.id !== 'string' || typeof r.sourceId !== 'string' || typeof r.targetId !== 'string') return false;
+  }
+
+  return true;
+}
+
+type SaveResult = { success: true } | { success: false; error: string };
+type LoadResult = { success: true; data: TimelineState } | { success: false; error: string };
+
+function saveToStorage(state: TimelineState): SaveResult {
   try {
     const serialized = serializeState(state);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(serialized));
+    return { success: true };
   } catch (e) {
-    console.error('Failed to save timeline to localStorage:', e);
+    const error = e instanceof Error ? e.message : 'Unknown error';
+    console.error('Failed to save timeline to localStorage:', error);
+    return { success: false, error };
   }
 }
 
-function loadFromStorage(): TimelineState | null {
+function loadFromStorage(): LoadResult {
   try {
+    // Check for first visit - load default data
+    if (isFirstVisit(STORAGE_KEY)) {
+      const defaultState = deserializeState(DEFAULT_TIMELINE);
+      return { success: true, data: defaultState };
+    }
+
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const data = JSON.parse(raw) as SerializedTimeline;
-    // Future: handle migrations based on data.version
-    return deserializeState(data);
+    if (!raw) {
+      const defaultState = deserializeState(DEFAULT_TIMELINE);
+      return { success: true, data: defaultState };
+    }
+
+    const parsed = JSON.parse(raw);
+
+    // Validate data structure
+    if (!validateData(parsed)) {
+      console.warn('Invalid data structure in localStorage, loading defaults');
+      const defaultState = deserializeState(DEFAULT_TIMELINE);
+      return { success: true, data: defaultState };
+    }
+
+    // Migrate if needed
+    const migrated = migrateData(parsed);
+
+    return { success: true, data: deserializeState(migrated) };
   } catch (e) {
-    console.error('Failed to load timeline from localStorage:', e);
-    return null;
+    const error = e instanceof Error ? e.message : 'Unknown error';
+    console.error('Failed to load timeline from localStorage:', error);
+    // On error, return default state
+    const defaultState = deserializeState(DEFAULT_TIMELINE);
+    return { success: true, data: defaultState };
   }
 }
 
@@ -277,6 +370,7 @@ interface TimelineContextValue {
   canRedo: boolean;
   solverResult: SolverResult | null;
   isSolving: boolean;
+  storageError: string | null;
 
   // Node actions
   addNode: (node: Omit<TimelineNode, 'id' | 'createdAt' | 'updatedAt'>) => NodeId;
@@ -320,12 +414,15 @@ interface TimelineProviderProps {
 }
 
 export function TimelineProvider({ children }: TimelineProviderProps) {
+  const [storageError, setStorageError] = useState<string | null>(null);
+
   // Initialize with loaded state or default
   const initialState = useMemo(() => {
-    const loaded = loadFromStorage();
+    const loadResult = loadFromStorage();
+    const data = loadResult.success ? loadResult.data : createInitialTimelineState();
     return {
       past: [] as TimelineState[],
-      present: loaded ?? createInitialTimelineState(),
+      present: data,
       future: [] as TimelineState[],
     };
   }, []);
@@ -346,7 +443,12 @@ export function TimelineProvider({ children }: TimelineProviderProps) {
   // Auto-save effect
   useEffect(() => {
     const timer = setTimeout(() => {
-      saveToStorage(state);
+      const result = saveToStorage(state);
+      if (!result.success) {
+        setStorageError(result.error);
+      } else {
+        setStorageError(null);
+      }
     }, AUTO_SAVE_DELAY);
     return () => clearTimeout(timer);
   }, [state]);
@@ -474,6 +576,7 @@ export function TimelineProvider({ children }: TimelineProviderProps) {
     canRedo,
     solverResult,
     isSolving,
+    storageError,
     addNode,
     updateNode,
     deleteNode,
