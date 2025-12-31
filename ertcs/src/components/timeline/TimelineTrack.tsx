@@ -2,12 +2,16 @@ import { useMemo } from 'react';
 import { useTimeline } from '../../context/TimelineContext';
 import { TimelineNode } from './TimelineNode';
 import { TimelineInterval } from './TimelineInterval';
-import type { SolvedPosition } from '../../types';
+import type { SolvedPosition, NodeId } from '../../types';
 import './TimelineTrack.css';
 
 const TIMELINE_WIDTH = 2000; // Base width, will be scaled by zoom
 
-export function TimelineTrack() {
+interface TimelineTrackProps {
+  onEditNode?: (nodeId: NodeId) => void;
+}
+
+export function TimelineTrack({ onEditNode }: TimelineTrackProps) {
   const { state, solverResult, selectNode } = useTimeline();
   const { nodes, nodeOrder, selectedNodeId } = state;
 
@@ -54,7 +58,12 @@ export function TimelineTrack() {
   }, [positions, nodes]);
 
   const handleNodeClick = (nodeId: string) => {
-    selectNode(nodeId);
+    if (selectedNodeId === nodeId && onEditNode) {
+      // Clicking already-selected node opens editor
+      onEditNode(nodeId);
+    } else {
+      selectNode(nodeId);
+    }
   };
 
   const handleBackgroundClick = () => {

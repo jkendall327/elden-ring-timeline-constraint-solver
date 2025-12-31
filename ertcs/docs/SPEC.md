@@ -284,37 +284,50 @@ interface HistoryState<T> {
   - Manages worker lifecycle
   - Provides result, isSolving, error states
 
-### Phase 3: Editor UI - NOT STARTED
+### Phase 3: Editor UI - COMPLETE
 
-- [ ] `src/components/modals/Modal.tsx` - Base modal component
+- [x] `src/components/modals/Modal.tsx` - Base modal component
   - Overlay with click-outside to close
   - Escape key to close
   - Focus trap for accessibility
-- [ ] `src/components/modals/NodeEditorModal.tsx`
-  - Open when clicking a node (currently just selects)
+- [x] `src/components/modals/Modal.css` - Modal styling
+  - Form elements (inputs, selects, textareas, radio buttons)
+  - Toggle switches
+  - Action buttons (primary, secondary, danger)
+  - Danger zone for delete confirmations
+  - Relationship preview section
+- [x] `src/components/modals/NodeEditorModal.tsx`
+  - Open when clicking a selected node
   - Fields: name (text), description (textarea), durationType (radio), category (select)
   - Enable/disable toggle
   - Delete button with confirmation
   - Save/Cancel buttons
-- [ ] `src/components/modals/RelationshipModal.tsx`
+- [x] `src/components/modals/RelationshipModal.tsx`
   - Create new relationship between two nodes
   - Source node selector (dropdown of all nodes)
   - Target node selector (dropdown of all nodes)
   - Relation type selector (all 13 Allen relations with descriptions)
   - Confidence level selector (explicit/inferred/speculation)
   - Reasoning field (textarea for evidence)
-  - Preview: show if this would cause conflicts before saving
+  - Preview of relationship being created
   - Enable/disable toggle for editing existing
-  - Delete button
-- [ ] UI to trigger relationship creation
-  - Option A: "Add Relationship" button in toolbar
-  - Option B: Right-click context menu on nodes
-  - Option C: Drag from one node to another
-- [ ] `src/hooks/useKeyboardShortcuts.ts`
+  - Delete button with confirmation
+- [x] `src/components/modals/HelpModal.tsx` - Documentation modal
+  - Project overview
+  - Getting started guide
+  - Allen's Interval Relations reference
+  - Confidence levels explanation
+  - Keyboard shortcuts reference
+  - Navigation instructions
+- [x] UI to trigger relationship creation
+  - "Add Relationship" button in toolbar (disabled if < 2 nodes)
+- [x] `src/hooks/useKeyboardShortcuts.ts`
   - Ctrl+Z / Cmd+Z for undo
   - Ctrl+Shift+Z / Cmd+Shift+Z for redo
+  - Ctrl+Y for redo (Windows)
   - Escape to close modals
-  - Delete to delete selected node
+  - Delete/Backspace to delete selected node
+- [x] Updated `TimelineTrack.tsx` to open editor on clicking selected node
 
 ### Phase 4: Relationship Visualization - NOT STARTED
 
@@ -395,23 +408,23 @@ interface HistoryState<T> {
 - App runs (`npm run dev`)
 - Can add instant events and eras via toolbar buttons
 - Timeline displays nodes with pan/zoom
-- Undo/redo works
+- Undo/redo works (with keyboard shortcuts Ctrl+Z / Ctrl+Shift+Z)
 - Solver runs automatically and positions nodes
 - Data persists to localStorage
+- Can edit nodes after creation (click selected node to edit)
+- Can create relationships between nodes via toolbar button
+- Help modal with documentation
+- Delete nodes via keyboard (Delete/Backspace)
 
 **What's missing for MVP:**
-1. Cannot edit nodes after creation (need NodeEditorModal)
-2. Cannot create relationships between nodes (need RelationshipModal)
-3. Cannot see relationships visually (need RelationshipLine)
-4. No way to see conflicts (need ConflictPanel)
-5. No pre-loaded data (need defaultTimeline.ts)
+1. Cannot see relationships visually (need RelationshipLine)
+2. No way to see conflicts (need ConflictPanel)
+3. No pre-loaded data (need defaultTimeline.ts)
 
 **Recommended next steps:**
-1. Build the modal system and NodeEditorModal
-2. Build RelationshipModal to create constraints
-3. Add RelationshipLine visualization
-4. Add ConflictPanel to show solver status
-5. Create default Elden Ring dataset
+1. Add RelationshipLine visualization (Phase 4)
+2. Add ConflictPanel to show solver status (Phase 5)
+3. Create default Elden Ring dataset (Phase 6)
 
 ---
 

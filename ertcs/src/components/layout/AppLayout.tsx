@@ -4,10 +4,13 @@ import './AppLayout.css';
 
 interface AppLayoutProps {
   children: ReactNode;
+  onAddRelationship: () => void;
+  onOpenHelp: () => void;
 }
 
-export function AppLayout({ children }: AppLayoutProps) {
-  const { canUndo, canRedo, undo, redo, addNode } = useTimeline();
+export function AppLayout({ children, onAddRelationship, onOpenHelp }: AppLayoutProps) {
+  const { canUndo, canRedo, undo, redo, addNode, state } = useTimeline();
+  const hasEnoughNodes = state.nodeOrder.length >= 2;
 
   const handleAddEvent = () => {
     addNode({
@@ -50,6 +53,14 @@ export function AppLayout({ children }: AppLayoutProps) {
             >
               + Era
             </button>
+            <button
+              className="toolbar-btn"
+              onClick={onAddRelationship}
+              disabled={!hasEnoughNodes}
+              title={hasEnoughNodes ? 'Add relationship between events' : 'Add at least 2 events first'}
+            >
+              + Relationship
+            </button>
             <div className="toolbar-separator" />
             <button
               className="toolbar-btn"
@@ -70,7 +81,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           </div>
         </div>
         <div className="app-header-right">
-          <button className="help-btn" title="Help">
+          <button className="help-btn" onClick={onOpenHelp} title="Help">
             ?
           </button>
         </div>
